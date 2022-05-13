@@ -62,7 +62,7 @@ async def song_downloader(_, message):
 
     except Exception as e:
         await m.edit("❌ song not found.\n\n» Give me a valid song name !")
-        print(str(e))
+        print(e)
         return
     await m.edit("📥 downloading song...")
     try:

@@ -88,10 +88,12 @@ async def play_tg_file(c: Client, m: Message, replied: Message = None, link: str
             "» reply to an **audio file** or **give something to search.**"
         )
     if replied.audio or replied.voice:
-        if not link:
-            suhu = await replied.reply("📥 downloading audio...")
-        else:
-            suhu = await m.reply("📥 downloading audio...")
+        suhu = (
+            await m.reply("📥 downloading audio...")
+            if link
+            else await replied.reply("📥 downloading audio...")
+        )
+
         dl = await replied.download()
         link = replied.link
         songname = "music"
@@ -99,15 +101,23 @@ async def play_tg_file(c: Client, m: Message, replied: Message = None, link: str
         duration = "00:00"
         try:
             if replied.audio:
-                if replied.audio.title:
-                    songname = replied.audio.title[:80]
-                else:
-                    songname = replied.audio.file_name[:80]
+                songname = (
+                    replied.audio.title[:80]
+                    if replied.audio.title
+                    else replied.audio.file_name[:80]
+                )
+
                 if replied.audio.thumbs:
-                    if not link:
-                        thumbnail = await c.download_media(replied.audio.thumbs[0].file_id)
-                    else:
-                        thumbnail = await user.download_media(replied.audio.thumbs[0].file_id)
+                    thumbnail = (
+                        await user.download_media(
+                            replied.audio.thumbs[0].file_id
+                        )
+                        if link
+                        else await c.download_media(
+                            replied.audio.thumbs[0].file_id
+                        )
+                    )
+
                 duration = convert_seconds(replied.audio.duration)
             elif replied.voice:
                 songname = "voice note"

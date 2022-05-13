@@ -60,5 +60,4 @@ async def thumb(thumbnail, title, userid, ctitle):
     img.save(f"search/final{userid}.png")
     os.remove(f"search/temp{userid}.png")
     os.remove(img_path)
-    final = f"search/final{userid}.png"
-    return final
+    return f"search/final{userid}.png"

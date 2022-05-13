@@ -71,11 +71,8 @@ async def leave_chat(c :Client, m: Message):
     try:
         if chat_id in QUEUE:
             await remove_active_chat(chat_id)
-            await user.leave_chat(chat_id)
-            return await c.send_message(chat_id, "✅ userbot has left from chat")
-        else:
-            await user.leave_chat(chat_id)
-            return await c.send_message(chat_id, "✅ userbot has left from chat")
+        await user.leave_chat(chat_id)
+        return await c.send_message(chat_id, "✅ userbot has left from chat")
     except UserNotParticipant:
         return await c.send_message(chat_id, "❌ userbot already leave chat")
 
@@ -162,9 +159,9 @@ async def stop_group_call(c: Client, m: Message):
 @Client.on_message(filters.left_chat_member)
 async def bot_kicked(c: Client, m: Message):
     bot_id = me_bot.id
-    chat_id = m.chat.id
     left_member = m.left_chat_member
     if left_member.id == bot_id:
+        chat_id = m.chat.id
         if chat_id in QUEUE:
             await remove_active_chat(chat_id)
             return

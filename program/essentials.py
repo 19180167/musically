@@ -41,16 +41,13 @@ from config import BOT_USERNAME as uname
 @Client.on_message(command(["broadcast", f"broadcast@{uname}"]) & ~filters.edited)
 @bot_creator
 async def broadcast_message_nopin(c: Client, message: Message):
-    if not message.reply_to_message:
-        pass
-    else:
+    if message.reply_to_message:
         x = message.reply_to_message.message_id
         y = message.chat.id
         sent = 0
         chats = []
         schats = await get_served_chats()
-        for chat in schats:
-            chats.append(int(chat["chat_id"]))
+        chats.extend(int(chat["chat_id"]) for chat in schats)
         for i in chats:
             try:
                 m = await c.forward_messages(i, y, x)
@@ -69,8 +66,7 @@ async def broadcast_message_nopin(c: Client, message: Message):
     sent = 0
     chats = []
     schats = await get_served_chats()
-    for chat in schats:
-        chats.append(int(chat["chat_id"]))
+    chats.extend(int(chat["chat_id"]) for chat in schats)
     for i in chats:
         try:
             m = await c.send_message(i, text=text)
@@ -84,17 +80,14 @@ async def broadcast_message_nopin(c: Client, message: Message):
 @Client.on_message(command(["broadcast_pin", f"broadcast_pin@{uname}"]) & ~filters.edited)
 @bot_creator
 async def broadcast_message_pin(c: Client, message: Message):
-    if not message.reply_to_message:
-        pass
-    else:
+    if message.reply_to_message:
         x = message.reply_to_message.message_id
         y = message.chat.id
         sent = 0
         pin = 0
         chats = []
         schats = await get_served_chats()
-        for chat in schats:
-            chats.append(int(chat["chat_id"]))
+        chats.extend(int(chat["chat_id"]) for chat in schats)
         for i in chats:
             try:
                 m = await c.forward_messages(i, y, x)
@@ -121,8 +114,7 @@ async def broadcast_message_pin(c: Client, message: Message):
     pin = 0
     chats = []
     schats = await get_served_chats()
-    for chat in schats:
-        chats.append(int(chat["chat_id"]))
+    chats.extend(int(chat["chat_id"]) for chat in schats)
     for i in chats:
         try:
             m = await c.send_message(i, text=text)
@@ -172,8 +164,7 @@ async def active_group_calls(c: Client, message: Message):
     served_chats = []
     try:
         chats = await get_active_chats()
-        for chat in chats:
-            served_chats.append(int(chat["chat_id"]))
+        served_chats.extend(int(chat["chat_id"]) for chat in chats)
     except Exception as e:
         await message.reply_text(f"🚫 error: `{e}`")
     text = ""
