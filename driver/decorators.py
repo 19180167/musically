@@ -70,7 +70,7 @@ def humanbytes(size):
     while size > power:
         size /= power
         raised_to_pow += 1
-    return str(round(size, 2)) + " " + dict_power_n[raised_to_pow] + "B"
+    return f"{str(round(size, 2))} {dict_power_n[raised_to_pow]}B"
 
 
 async def check_perms(
@@ -92,8 +92,6 @@ async def check_perms(
     if user.status == "creator":
         return True
 
-    missing_perms = []
-
     # No permissions specified, accept being an admin.
     if not permissions and user.status == "administrator":
         return True
@@ -106,9 +104,11 @@ async def check_perms(
     if isinstance(permissions, str):
         permissions = [permissions]
 
-    for permission in permissions:
-        if not getattr(user, permission):
-            missing_perms.append(permission)
+    missing_perms = [
+        permission
+        for permission in permissions
+        if not getattr(user, permission)
+    ]
 
     if not missing_perms:
         return True
@@ -153,8 +153,8 @@ def check_blacklist():
             if chat.id in await blacklisted_chats():
                 await sender("❗️ This chat has blacklisted by sudo user and You're not allowed to use me in this chat.")
                 await bot.leave_chat(chat.id)
-            elif (await is_gbanned_user(message.from_user.id)):
-                await sender(f"❗️**You've blocked from using this bot!**")
+            elif await is_gbanned_user(message.from_user.id):
+                await sender("❗️**You've blocked from using this bot!**")
             else:
                 return await func(client, message, *args, *kwargs)
 

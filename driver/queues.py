@@ -27,28 +27,22 @@ def add_to_queue(chat_id, songname, link, ref, type, quality):
 
 
 def get_queue(chat_id):
-   if chat_id in QUEUE:
-      chat_queue = QUEUE[chat_id]
-      return chat_queue
-   else:
-      return 0
+    return QUEUE[chat_id] if chat_id in QUEUE else 0
 
 
 def pop_an_item(chat_id):
-   if chat_id in QUEUE:
-      chat_queue = QUEUE[chat_id]
-      chat_queue.pop(0)
-      return 1
-   else:
-      return 0
+    if chat_id not in QUEUE:
+        return 0
+    chat_queue = QUEUE[chat_id]
+    chat_queue.pop(0)
+    return 1
 
 
 def clear_queue(chat_id):
-   if chat_id in QUEUE:
-      for i in QUEUE[chat_id]:
-         if "t.me" in i[2]:
-            clean_trash(i[1], chat_id, True)
-      QUEUE.pop(chat_id)
-      return 1
-   else:
-      return 0
+    if chat_id not in QUEUE:
+        return 0
+    for i in QUEUE[chat_id]:
+       if "t.me" in i[2]:
+          clean_trash(i[1], chat_id, True)
+    QUEUE.pop(chat_id)
+    return 1

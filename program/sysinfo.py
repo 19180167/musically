@@ -90,6 +90,5 @@ async def get_bot_logs(c: Client, m: Message):
         except Exception as e:
             remove_if_exists(bot_log_path)
             print(f'[ERROR]: {e}')
-    else:
-        if not os.path.exists(bot_log_path):
-            await m.reply_text('❌ no logs found !')
+    elif not os.path.exists(bot_log_path):
+        await m.reply_text('❌ no logs found !')

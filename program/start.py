@@ -72,7 +72,7 @@ async def _human_time_duration(seconds):
     for unit, div in TIME_DURATION_UNITS:
         amount, seconds = divmod(int(seconds), div)
         if amount > 0:
-            parts.append("{} {}{}".format(amount, unit, "" if amount == 1 else "s"))
+            parts.append(f'{amount} {unit}{"" if amount == 1 else "s"}')
     return ", ".join(parts)
 
 
@@ -175,18 +175,15 @@ async def approve_join_chat(c: Client, m: ChatJoinRequest):
 @Client.on_message(filters.new_chat_members)
 async def new_chat(c: Client, m: Message):
     chat_id = m.chat.id
-    if await is_served_chat(chat_id):
-        pass
-    else:
+    if not await is_served_chat(chat_id):
         await add_served_chat(chat_id)
     for member in m.new_chat_members:
         try:
-            if member.id == me_bot.id:
-                if chat_id in await blacklisted_chats():
-                    await m.reply_text(
-                        "❗️ This chat has blacklisted by sudo user and You're not allowed to use me in this chat."
-                    )
-                    return await bot.leave_chat(chat_id)
+            if member.id == me_bot.id and chat_id in await blacklisted_chats():
+                await m.reply_text(
+                    "❗️ This chat has blacklisted by sudo user and You're not allowed to use me in this chat."
+                )
+                return await bot.leave_chat(chat_id)
             if member.id == me_bot.id:
                 return await m.reply(
                     "❤️ Thanks for adding me to the **Group** !\n\n"

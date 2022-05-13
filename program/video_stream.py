@@ -80,10 +80,7 @@ async def ytdl(link):
         stderr=asyncio.subprocess.PIPE,
     )
     stdout, stderr = await proc.communicate()
-    if stdout:
-        return 1, stdout.decode().split("\n")[0]
-    else:
-        return 0, stderr.decode()
+    return (1, stdout.decode().split("\n")[0]) if stdout else (0, stderr.decode())
 
 def convert_seconds(seconds):
     seconds = seconds % (24 * 3600)
@@ -107,24 +104,26 @@ async def play_tg_file(c: Client, m: Message, replied: Message = None, link: str
             "» reply to an **audio file** or **give something to search.**"
         )
     if replied.video or replied.document:
-        if not link:
-            loser = await replied.reply("📥 downloading video...")
-        else:
-            loser = await m.reply("📥 downloading video...")
+        loser = (
+            await m.reply("📥 downloading video...")
+            if link
+            else await replied.reply("📥 downloading video...")
+        )
+
         dl = await replied.download()
-        link = replied.link
-        songname = "video"
-        duration = "00:00"
         Q = 720
+        link = replied.link
         pq = m.text.split(None, 1)
         if ("t.me" not in m.text) and len(pq) > 1:
             pq = pq[1]
-            if pq == "720" or pq == "480" or pq == "360":
+            if pq in ["720", "480", "360"]:
                 Q = int(pq)
             else:
                 await loser.edit(
                     "start streaming the local video in 720p quality"
                 )
+        songname = "video"
+        duration = "00:00"
         try:
             if replied.video:
                 songname = replied.video.file_name[:80]
@@ -138,9 +137,9 @@ async def play_tg_file(c: Client, m: Message, replied: Message = None, link: str
             await loser.edit("🔄 Queueing Track...")
             gcname = m.chat.title
             ctitle = await CHAT_TITLE(gcname)
-            title = songname
             userid = m.from_user.id
             thumbnail = f"{IMG_5}"
+            title = songname
             image = await thumb(thumbnail, title, userid, ctitle)
             pos = add_to_queue(chat_id, songname, dl, link, "video", Q)
             await loser.delete()
@@ -160,16 +159,16 @@ async def play_tg_file(c: Client, m: Message, replied: Message = None, link: str
                 await loser.edit("🔄 Joining Group Call...")
                 gcname = m.chat.title
                 ctitle = await CHAT_TITLE(gcname)
+                thumbnail = f"{IMG_5}"
                 title = songname
                 userid = m.from_user.id
-                thumbnail = f"{IMG_5}"
                 image = await thumb(thumbnail, title, userid, ctitle)
-                if Q == 720:
-                    amaze = HighQualityVideo()
+                if Q == 360:
+                    amaze = LowQualityVideo()
                 elif Q == 480:
                     amaze = MediumQualityVideo()
-                elif Q == 360:
-                    amaze = LowQualityVideo()
+                elif Q == 720:
+                    amaze = HighQualityVideo()
                 await music_on(chat_id)
                 await add_active_chat(chat_id)
                 await calls.join_group_call(
